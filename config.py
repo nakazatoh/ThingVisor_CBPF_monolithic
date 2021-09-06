@@ -51,6 +51,7 @@ source = 'http://'+pana_cam_ip
 entityVersion = 2.0
 description = 'virtual person finder'
 softwareVersion = '1.0'
+pana_cam_model = 'WV-S1131'
 
 # setting image file dir
 img_file_dir = os.path.abspath(os.path.join(root_path, 'image')) + '/'

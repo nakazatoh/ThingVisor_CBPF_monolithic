@@ -134,10 +134,14 @@ def publish_attributes_of_a_vthing(vthingindex, attributes):
     # {attributename:STRING, attributevalue:WHATEVER, isrelationship:BOOL (optional)}
     ngsildentity = { "id": v_things[vthingindex]["ID_LD"], "type": v_things[vthingindex]["type_attr"] }
     for attribute in attributes:
-        if "isrelationship" in attribute and attribute["isrelationship"] == True:
-            ngsildentity[attribute["attributename"]] = {"type":"Relationship", "object":attribute["attributevalue"]}
+        #if "isrelationship" in attribute and attribute["isrelationship"] == True:
+        if "attributetype" in attribute and attribute["attributetype"] != '':
+            if attribute["attributetype"] == "Relationship":
+                ngsildentity[attribute["attributename"]] = {"type":"Relationship", "object": attribute["attributevalue"]}
+            else:
+                ngsildentity[attribute["attributename"]] = {"type": attribute["attributetype"], "value": attribute["attributevalue"]}
         else:
-            ngsildentity[attribute["attributename"]] = {"type":"Property", "value":attribute["attributevalue"]}
+            ngsildentity[attribute["attributename"]] = {"type":"Property", "value": attribute["attributevalue"]}
     add_core_context_to_ngsildentity(ngsildentity)
     data = [ngsildentity]
     v_things[vthingindex]['context'].update(data)

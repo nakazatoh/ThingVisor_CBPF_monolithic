@@ -15,6 +15,7 @@
 
 import os
 # from ThingVisor_CBPF.thingVisor_facerecognition import periodically_every_fps
+
 import thingVisor_generic_module as thingvisor
 
 import sys
@@ -32,8 +33,8 @@ import cv2
 import numpy as np
 import base64
 
-import shlex
-import shutil
+#import shlex
+#import shutil
 #from multiprocessing import Process, Pipe
 import threading
 import glob
@@ -43,7 +44,7 @@ from face_detction import face_detection_api as face_rec
 import datetime
 from sub_main_multithreading import run_face_find_pana, close_thread
 import find_face_recognition, config
-import werkzeug
+#import werkzeug
 from flask import Flask, jsonify, render_template
 from werkzeug.utils import secure_filename
 
@@ -96,6 +97,7 @@ def on_start(cmd_name, cmd_info, id_LD):
     if "cmd-value" in cmd_info:
         #if "job" in cmd_info["cmd-value"]:
         job = cmd_info["cmd-value"]["job"]
+        #'''
         coded_img = cmd_info["cmd-value"]["img"]
         # int_img = coded_img.encode('utf-8')
         # print(int_img)
@@ -104,6 +106,7 @@ def on_start(cmd_name, cmd_info, id_LD):
             target_face_img_file.write(img)
 
         face_rec_start_flg = True
+        #'''
             # thingvisor.publish_actuation_response_message(cmd_name, cmd_info, id_LD, jsonify({"api result": "Face recognition is started."}))
 
         # os.chdir(config.root_path)
@@ -175,6 +178,8 @@ def allowed_file(file_name):
 
 #@api.route('/api/upload', methods=['GET', 'POST'])
 def uploads():
+    global face_rec_start_flg
+
     if request.method == 'POST':
         # get POST
         file = request.files['file']
@@ -185,6 +190,7 @@ def uploads():
             file_name = secure_filename(file.filename)
             # save image file
             file.save(os.path.join(UPLOAD_DIR, file_name))
+            #face_rec_start_flg = True;
             return jsonify({"api result": "File upload success!"})
         else:
             return jsonify({"api result": "File format is not 'jpg', 'jpeg', 'png'"})
@@ -221,6 +227,8 @@ def periodically_every_fps():
                 #t_mqtt.publish_order = True
                 #t_mqtt.image_name = img_name
                 print("A face appeared")
+                location = '{ "type": "Point", "coordinates": [' + ','.join(map(str, config.location)) + '] }'
+                createdat = datetime.datetime.utcnow().replace(microsecond=0).isoformat() + 'Z'
                 result = []
                 address_list = psutil.net_if_addrs()
                 print(address_list)
@@ -232,14 +240,15 @@ def periodically_every_fps():
                             result.append(ip)
                     except KeyError as err:
                         pass
-                dataProvider = "http://"+result[0]+ ":5000/api/view/" + img_name
-                attributes = [{"attributename": 'location', "attributevalue": config.location}, 
-                {"attributename": 'source', "attributevalue": config.source},
-                {"attributename": 'dataProvider', "attributevalue": dataProvider},
+                filename = "http://"+result[0]+ ":5000/api/view/" + img_name
+                attributes = [{"attributename": 'location', "attributevalue": location, "attributetype": "GeoProperty"}, 
+                {"attributename": 'createdAt', "attributevalue": createdat},
+                {"attributename": 'Source', "attributevalue": config.source},
+                {"attributename": 'dataProvider', "attributevalue": filename},
                 {"attributename": 'entityVersion', "attributevalue": config.entityVersion},
+                {"attributename": 'deviceModel', "attributevalue": config.pana_cam_model, "attributetype": "Relationship"},
                 {"attributename": 'description', "attributevalue": config.description},
-                {"attributename": 'softwareVersion', "attributevalue": config.softwareVersion},
-                {"attributename": 'DetectHuman', "attributevalue": True}
+                {"attributename": 'FileName', "attributevalue": filename}
                 ]
                 thingvisor.publish_attributes_of_a_vthing("detector", attributes)
     threading.Timer(1/thingvisor.params['fps'], periodically_every_fps).start()
@@ -253,7 +262,7 @@ if __name__ == '__main__':
     known_encodings = []
     known_metadata = []
     
-    thingvisor.initialize_vthing("detector","CBPFEvent","CBPF virual thing",["start","stop","delete-by-name"])
+    thingvisor.initialize_vthing("detector","CBPF Event","CBPF virual thing",["start","stop","delete-by-name"])
     print("All vthings initialized")
     print(thingvisor.v_things['detector'])
     if 'fps' in thingvisor.params:
