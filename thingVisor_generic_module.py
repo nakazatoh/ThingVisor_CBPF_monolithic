@@ -24,6 +24,7 @@ from pymongo import MongoClient
 from context import Context
 from concurrent.futures import ThreadPoolExecutor
 from importlib import import_module
+import datetime
 
 params = {} 
 
@@ -148,6 +149,7 @@ def publish_attributes_of_a_vthing(vthingindex, attributes):
     message = { "data": data, "meta": {"vThingID": v_things[vthingindex]['ID']} }  # neutral-format message
     # usual broadcast topic, so that data is sent to all subscribers of this vthing
     topic = v_things[vthingindex]['topic'] + "/" + out_data_suffix
+    print("***publish_attributes_of_a_vthing at: " + str(datetime.datetime.utcnow().isoformat()))
     publish_message_with_data_client(message, topic)
 
 
@@ -169,6 +171,7 @@ def message_to_jres(message):
 def callback_for_mqtt_data_in_vthing(mosq, obj, message):
     executor.submit(processor_for_mqtt_data_in_vthing, message)
 def processor_for_mqtt_data_in_vthing(message):
+    print("***processor_for_mqtt_data_in_vthing at: " + str(datetime.datetime.utcnow().isoformat()))
     jres = message_to_jres(message)
     try:
         data = jres["data"]
@@ -245,6 +248,7 @@ def publish_actuation_response_message(cmd_name, cmd_info, id_LD, payload, type_
         if "cmd-nuri" in cmd_info:
             if cmd_info['cmd-nuri'].startswith("viriot://"):
                 topic = cmd_info['cmd-nuri'][len("viriot://"):]
+        print("***publish_actuation_response_message at: " + str(datetime.datetime.utcnow().isoformat()))
         publish_message_with_data_client(message, topic)
     except:
         traceback.print_exc()

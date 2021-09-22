@@ -11,6 +11,9 @@ import os
 import json
 import thingVisor_generic_module as thingvisor
 
+# This key will serve all examples in this document.
+# KEY = "6dddf85ffb3445f288d01cb8a1d0457b"
+# KEY = os.environ['AZURE_KEY']
 try:
     parameters = json.loads(os.environ['params'])
 except json.decoder.JSONDecodeError:
@@ -22,7 +25,8 @@ except Exception as e:
 
 KEY = parameters["AZURE_KEY"]
 # This endpoint will be used in all examples in this quickstart.
-ENDPOINT = "https://fed4iot.cognitiveservices.azure.com/"
+#ENDPOINT = "https://fed4iot.cognitiveservices.azure.com/"
+ENDPOINT = parameters["ENDPOINT"]
 
 # Create an authenticated FaceClient.
 face_client = FaceClient(ENDPOINT, CognitiveServicesCredentials(KEY))

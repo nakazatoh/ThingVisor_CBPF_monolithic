@@ -70,6 +70,8 @@ class AzureRecognitionThread(threading.Thread):
                 sleep(10)
                 self.return_value = True
                 self.implement_flg = False
+            else:
+                sleep(1)
 
         logging.debug('azure face recognition thread end!')
 

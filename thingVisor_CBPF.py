@@ -94,6 +94,8 @@ def decode_base64url(s):
 def on_start(cmd_name, cmd_info, id_LD):
     global face_rec_start_flg
 
+    print("***Face search start at: " + str(datetime.datetime.utcnow().isoformat()))
+
     if "cmd-value" in cmd_info:
         #if "job" in cmd_info["cmd-value"]:
         job = cmd_info["cmd-value"]["job"]
@@ -138,6 +140,8 @@ ALLOW_EXTENSIONS = ['jpg', 'jpeg', 'png']
 def on_stop(cmd_name, cmd_info, id_LD):
     global face_rec_start_flg
 
+    print("***Face search stop at: " + str(datetime.datetime.utcnow().isoformat()))
+
     if "cmd-value" in cmd_info:
         job = cmd_info["cmd-value"]["job"]
         face_rec_start_flg = False
@@ -149,6 +153,8 @@ def on_stop(cmd_name, cmd_info, id_LD):
         
 
 def on_delete_by_name(cmd_name, cmd_info, id_LD):
+    print("***delete_by_name is requested at: " + str(datetime.datetime.utcnow().isoformat()))
+
     result_str = "Nothing to delete"
     if "cmd-value" in cmd_info:
         job = cmd_info["cmd-value"]["job"]
@@ -210,7 +216,9 @@ def periodically_every_fps():
 
     active_flg = True
     ret, img = capture.read()
+
     if ret:
+        print("***Camera picture at: " + str(datetime.datetime.utcnow().isoformat()))
         img, len_face_rec = face_rec.facial_detection(img)
 
         if len_face_rec > 0 and t_azure.implement_flg is False:
@@ -232,6 +240,7 @@ def periodically_every_fps():
                 result = []
                 address_list = psutil.net_if_addrs()
                 print(address_list)
+                print("***Face found at: " + str(datetime.datetime.utcnow().isoformat()))
                 for nic in address_list.keys():
                     ni.ifaddresses(nic)
                     try:
